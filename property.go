@@ -31,8 +31,29 @@ func getPropertyName(field *ast.Field) (name string, fieldType string)  {
 		return schemeType,schemeType
 
 
-	} else if _, ok := field.Type.(*ast.StarExpr); ok {
-		panic("not supported astStarExpr yet.")
+	} else if ptr, ok := field.Type.(*ast.StarExpr); ok {
+		// RF hack to derefence struct pointers and see if they are a simple astIdent
+		if astTypeSelectorExpr, okk := ptr.X.(*ast.SelectorExpr); okk {
+
+			// Support for time.Time as a structure field
+			if "Time" == astTypeSelectorExpr.Sel.Name {
+				return "string", "string"
+			}
+
+			// Support bson.ObjectId type
+			if "ObjectId" == astTypeSelectorExpr.Sel.Name {
+				return "string", "string"
+			}
+
+			panic("Can't dereference pointer, not supported 'astSelectorExpr' yet.")
+
+		} else if astTypeIdent, okk := ptr.X.(*ast.Ident); okk {
+			name = astTypeIdent.Name
+			schemeType:=TransToValidSchemeType(name)
+			return schemeType,schemeType
+		} else {
+			panic("Can't dereference pointer, not a simple ast.Ident type")
+		}
 	} else if _, ok := field.Type.(*ast.MapType); ok { // if map
 		//TODO: support map
 		return "object", "object"

@@ -14,6 +14,7 @@ type Pet struct {
 	PhotoUrls []string `json:"photo_urls"`
 	Tags      []Tag    `json:"tags"`
 	Status    string   `json:"status"`
+	Hidden	  string   `json:"-"`
 }
 
 type Tag struct {
