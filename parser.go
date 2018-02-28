@@ -240,7 +240,9 @@ func (parser *Parser) parseTypeSpec(pkgName string, typeSpec *ast.TypeSpec, prop
 					// `json:"tag"` -> json:"tag"
 					structTag := strings.Replace(field.Tag.Value, "`", "", -1)
 					jsonTag := reflect.StructTag(structTag).Get("json")
-					if jsonTag != "" {
+					if jsonTag == "-" {
+						continue
+					} else if jsonTag != "" {
 						name = jsonTag
 					}
 				}
